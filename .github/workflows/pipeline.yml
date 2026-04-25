@@ -33,7 +33,7 @@ jobs:
       - name: Node Setup
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: npm
       - run: npm ci
       - run: npx prisma generate
@@ -69,4 +69,4 @@ jobs:
           docker pull ghcr.io/${{ github.repository }}/express-api:latest
           echo "Running container..."
           docker run -d -p "3000:3000" ghcr.io/${{ github.repository }}/express-api:latest
-          echo "App deployed..."    
+          echo "App deployed..."
