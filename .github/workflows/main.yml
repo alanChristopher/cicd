@@ -2,7 +2,7 @@ name: Express API CI/CD
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
 
 jobs:
@@ -19,14 +19,12 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=5
-    
+          --health-cmd="pg_isready -U postgres" --health-interval=5s
+          --health-timeout=5s --health-retries=5
+
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cicd
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,7 +37,7 @@ jobs:
       - run: npx prisma generate
       - run: npx prisma migrate deploy
       - run: npm run test
-  
+
   docker:
     needs: ci
     runs-on: ubuntu-latest
@@ -47,29 +45,31 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
+
     env:
       OWNER: async0
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Login to github registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{
+          github.actor }} --password-stdin
       - name: Build docker image
         run: docker build -t ghcr.io/${{ env.OWNER }}/express-api:latest .
       - name: Push image
         run: docker push ghcr.io/${{ env.OWNER }}/express-api:latest
-    
+
   deploy:
     needs: docker
     runs-on: ubuntu-latest
 
+    env:
+      OWNER: async0
+
     steps:
       - name: Stimulate deployment
-        run:
-          echo "Pulling image..."
-          docker pull ghcr.io/${{ github.repository }}/express-api:latest
-          echo "Running container..."
-          docker run -d -p "3000:3000" ghcr.io/${{ github.repository }}/express-api:latest
-          echo "App deployed..."    
+        run: echo "Pulling image..." docker pull ghcr.io/${{ env.OWNER
+          }}/express-api:latest echo "Running container..." docker run -d -p
+          "3000:3000" ghcr.io/${{ env.OWNER }}/express-api:latest echo "App
+          deployed..."
