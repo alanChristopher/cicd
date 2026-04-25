@@ -12,4 +12,6 @@ RUN npm run build || true
 
 EXPOSE 3000
 
+ENV PORT=3000
+
 CMD [ "node", "src/server.js" ]
